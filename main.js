@@ -1,5 +1,4 @@
 document.addEventListener('DOMContentLoaded', function() {
-    // URL of your JSON data
     const jsonUrl = 'https://raw.githubusercontent.com/blountdj/webdev-job-board/main/data.json';
 
     const loadingSpinner = document.getElementById('loading-spinner');
@@ -51,9 +50,6 @@ document.addEventListener('DOMContentLoaded', function() {
         
         const jobData = fetchedData.data[jobId];
 
-        console.log('viewJobDetails:, jobId:', jobId);
-        console.log(fetchedData.data[jobId])
-
         const companyElem = jobDetailsWrapper.querySelector('.heading-2');
         companyElem.textContent = jobData.company;
 
@@ -62,6 +58,8 @@ document.addEventListener('DOMContentLoaded', function() {
 
         const companyLogoBackground = jobDetailsWrapper.querySelector('.details-logo-wrapper');
         companyLogoBackground.style.backgroundColor = jobData.logoBackground;
+
+        jobData.logoType === 'text' ? companyLogo.classList.add('is-text') : companyLogo.classList.add('is-image');
 
         const companyPosition = jobDetailsWrapper.querySelector('.details-position');
         companyPosition.textContent = jobData.position;
@@ -130,7 +128,6 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function toggleJobDetails() {
-        console.log('toggleJobDetails')
         mainWrapper.classList.toggle('hidden');
         jobDetailsWrapper.classList.toggle('hidden');
         jobDetailsFooter.classList.toggle('hidden');
@@ -166,7 +163,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
             const noJobsVar = noJobs <= data.length ? noJobs : data.length;
             currentNoJobs = noJobsVar;
-            console.log('noJobsVar:', noJobsVar)
+            // console.log('noJobsVar:', noJobsVar)
             for (let i = 0; i < noJobsVar; i++) {
                 addJobCard(data[i])
                 fetchedData.data[data[i].id] = data[i];
@@ -205,7 +202,7 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     function init() {
-        loadData(2);
+        loadData(9);
         checkInitialMode();
         loadMoreBtn.classList.remove('hidden');
         jobDetailsWrapper.classList.add('hidden');
