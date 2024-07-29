@@ -10,9 +10,37 @@ document.addEventListener('DOMContentLoaded', function() {
     const jobDetailsFooter = document.querySelector('.job-details-footer');
     const viewAllListingsLink = document.getElementById('view-all-listings-link');
     
-    let fetchedData;
+    // Filters
+    const searchBtn = document.getElementById('search-btn');
+    const searchFilter = document.getElementById('search-filter');
+    const locationFilter = document.getElementById('location-filter');
+    const fullTimeCheckbox = document.getElementById('full-time-checkbox');
 
+    // Details Section for Updates
+    const companyElem = jobDetailsWrapper.querySelector('.heading-2');
+    const companyLogo = jobDetailsWrapper.querySelector('.details-logo');
+    const companyLogoBackground = jobDetailsWrapper.querySelector('.details-logo-wrapper');
+    const companyPosition = jobDetailsWrapper.querySelector('.details-position');
+    const companyPositionFooter = jobDetailsFooter.querySelector('.details-position');
+    const companyWebsite = jobDetailsWrapper.querySelector('.details-company-website');
+    const companySiteBtn = jobDetailsWrapper.querySelector('#company-site-btn');
+    const postedAgo = jobDetailsWrapper.querySelector('#time-posted-ago');
+    const companyWebsiteFooter = jobDetailsFooter.querySelector('.details-company-website');
+    const detailsContract = jobDetailsWrapper.querySelector('#details-contract');
+    const detailsLocation = jobDetailsWrapper.querySelector('#details-location');
+    const detailsApplyBtn = jobDetailsWrapper.querySelector('#details-apply-btn');
+    const footerApplyBtn = jobDetailsFooter.querySelector('#footer-apply-btn');
+    const detailsDescription = jobDetailsWrapper.querySelector('#details-description');
+    const detailsRequirements = jobDetailsWrapper.querySelector('#details-requirements');
+    const requirementList = document.getElementById('requirements-list');
+    const detailsRole = jobDetailsWrapper.querySelector('#role-list');
+    const roleList = document.getElementById('role-list');
+
+
+    // Data
+    let fetchedData;
     let currentNoJobs;
+    let currentLimit = 9;
 
     function addJobCard(data) {
 
@@ -46,58 +74,33 @@ document.addEventListener('DOMContentLoaded', function() {
         jobsGrid.appendChild(jobCard);
     }
 
+    function removeLogoClasses() {
+        companyLogo.classList.remove('is-text'); 
+        companyLogo.classList.remove('is-image');
+    }
+
     function updateJobDetails(jobId) {
-        
-        const jobData = fetchedData.data[jobId];
+        const jobData = fetchedData.filteredData[jobId];
 
-        const companyElem = jobDetailsWrapper.querySelector('.heading-2');
-        companyElem.textContent = jobData.company;
-
-        const companyLogo = jobDetailsWrapper.querySelector('.details-logo');
+        companyElem.textContent = jobData.company;    
         companyLogo.src = jobData.logo;
-
-        const companyLogoBackground = jobDetailsWrapper.querySelector('.details-logo-wrapper');
         companyLogoBackground.style.backgroundColor = jobData.logoBackground;
 
+        removeLogoClasses();
         jobData.logoType === 'text' ? companyLogo.classList.add('is-text') : companyLogo.classList.add('is-image');
 
-        const companyPosition = jobDetailsWrapper.querySelector('.details-position');
         companyPosition.textContent = jobData.position;
-
-        const companyPositionFooter = jobDetailsFooter.querySelector('.details-position');
         companyPositionFooter.textContent = jobData.position;
-
-        const companyWebsite = jobDetailsWrapper.querySelector('.details-company-website');
         companyWebsite.textContent = `${jobData.company.replace(/\s+/g, '').toLowerCase()}.com`;
-
-        const companyWebsiteFooter = jobDetailsFooter.querySelector('.details-company-website');
         companyWebsiteFooter.textContent = `${jobData.company.replace(/\s+/g, '').toLowerCase()}.com`;
-
-        const companySiteBtn = jobDetailsWrapper.querySelector('#company-site-btn');
         companySiteBtn.href = jobData.website;
-        
-        const postedAgo = jobDetailsWrapper.querySelector('#time-posted-ago');
         postedAgo.textContent = jobData.postedAt;
-
-        const detailsContract = jobDetailsWrapper.querySelector('#details-contract');
         detailsContract.textContent = jobData.contract;
-
-        const detailsLocation = jobDetailsWrapper.querySelector('#details-location');
         detailsLocation.textContent = jobData.location;
-        
-        const detailsApplyBtn = jobDetailsWrapper.querySelector('#details-apply-btn');
-        detailsApplyBtn.href = jobData.apply;
-
-        const footerApplyBtn = jobDetailsFooter.querySelector('#footer-apply-btn');
-        footerApplyBtn.href = jobData.apply;
-  
-        const detailsDescription = jobDetailsWrapper.querySelector('#details-description');
+        detailsApplyBtn.href = jobData.apply;    
+        footerApplyBtn.href = jobData.apply;   
         detailsDescription.textContent = jobData.description;
-        
-        const detailsRequirements = jobDetailsWrapper.querySelector('#details-requirements');
         detailsRequirements.textContent = jobData.requirements.content;
-
-        const requirementList = document.getElementById('requirements-list');
         requirementList.innerHTML = '';
 
         jobData.requirements.items.forEach(requirementText => {
@@ -108,10 +111,7 @@ document.addEventListener('DOMContentLoaded', function() {
             requirementList.appendChild(listItem);
         });
 
-        const detailsRole = jobDetailsWrapper.querySelector('#role-list');
         detailsRole.textContent = jobData.role.content;
-
-        const roleList = document.getElementById('role-list');
         roleList.innerHTML = '';
 
         jobData.role.items.forEach(roleText => {
@@ -121,10 +121,6 @@ document.addEventListener('DOMContentLoaded', function() {
             listItem.textContent = roleText;
             roleList.appendChild(listItem);
         });
-
-
-
-
     }
 
     function toggleJobDetails() {
@@ -135,6 +131,7 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function jobCardClick(event) {
         const jobId = event.target.closest('.job-card').dataset.id;
+        window.scrollTo(0, 0);
         updateJobDetails(jobId)
         jobDetailsWrapper.style.display = 'flex';
         jobDetailsFooter.style.display = 'flex';
@@ -148,8 +145,35 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function loadData(noJobs = 12) {
+    function filterPositionData(data, fullTimeOnly) {
+        return data.filter(item => item.contract === "Full Time");
+    }
+
+    function filterLocationData(data, locationFilter) {
+        console.log('locationFilter:', locationFilter)
+        return data.filter(item => item.location.toLowerCase() === locationFilter.trim().toLowerCase());
+    }
+
+    function filterSearchData(data, searchFilter) {
+        const trimmedFilter = searchFilter.trim().toLowerCase();
+        
+        return data.filter(item => 
+            item.company.toLowerCase().includes(trimmedFilter) || 
+            item.position.toLowerCase().includes(trimmedFilter)
+        );
+    }
+
+
+    function loadData(noJobs = currentLimit) {
         loadingSpinner.classList.add('block');
+        let filteredData;
+
+        let searchFilterValue = searchFilter.value;
+        searchFilterValue = searchFilterValue === '' ? false : searchFilterValue;
+
+        let locationFilterValue = locationFilter.value;
+        locationFilterValue = locationFilterValue === '' ? false : locationFilterValue;
+        const fullTimeOnly = fullTimeCheckbox.checked;
 
         // Fetch the JSON data
         fetch(jsonUrl)
@@ -157,20 +181,27 @@ document.addEventListener('DOMContentLoaded', function() {
         .then(data => {
             loadingSpinner.classList.remove('block');
             jobsGrid.innerHTML = '';
-            fetchedData = { data: {} };
-            // Process the JSON data
-            // console.log(data);
+            
+            fullTimeOnly ? filteredData = filterPositionData(data, fullTimeOnly) : filteredData = data
+            locationFilterValue ? filteredData = filterLocationData(filteredData, locationFilterValue) : filteredData = filteredData;
+            searchFilterValue ? filteredData = filterSearchData(filteredData, searchFilterValue) : filteredData = filteredData;
 
-            const noJobsVar = noJobs <= data.length ? noJobs : data.length;
+
+            // console.log('filteredData:')
+            // console.log(filteredData)
+
+            fetchedData = { filteredData: {} };
+            const noJobsVar = noJobs <= filteredData.length ? noJobs : filteredData.length;
             currentNoJobs = noJobsVar;
-            // console.log('noJobsVar:', noJobsVar)
             for (let i = 0; i < noJobsVar; i++) {
-                addJobCard(data[i])
-                fetchedData.data[data[i].id] = data[i];
+                addJobCard(filteredData[i])
+                fetchedData.filteredData[filteredData[i].id] = filteredData[i];
             }
 
-            if (noJobsVar >= data.length) {
+            if (noJobsVar >= filteredData.length) {
                 loadMoreBtn.classList.add('hidden');
+            } else {
+                loadMoreBtn.classList.remove('hidden');
             }
 
             addJobCardEventListeners();
@@ -189,26 +220,33 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     loadMoreBtn.addEventListener('click', function() {
-        loadData(currentNoJobs + 9);
+        loadData(currentNoJobs + currentLimit);
     })
 
     function closeDetails() {
         toggleJobDetails()
+        window.scrollTo(0, 0);
         setTimeout(() => {
             jobDetailsWrapper.style.display = 'none';
             jobDetailsFooter.style.display = 'none';
         }, 200)
+
         
     }
 
+    function search() {
+        jobsGrid.innerHTML = '';
+        loadData()
+    }
+
     function init() {
-        loadData(9);
+        loadData(currentLimit);
         checkInitialMode();
         loadMoreBtn.classList.remove('hidden');
         jobDetailsWrapper.classList.add('hidden');
         jobDetailsFooter.classList.add('hidden');
         viewAllListingsLink.addEventListener('click', closeDetails);
-        
+        searchBtn.addEventListener('click', search);
     }
 
     init()
