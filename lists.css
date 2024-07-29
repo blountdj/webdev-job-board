@@ -1,0 +1,44 @@
+.ordered-list {
+    counter-reset: list-counter; /* Reset the list counter */
+  }
+
+.ordered-list li {
+list-style: none; /* Remove default list styling */
+position: relative; /* Positioning context for the pseudo-element */
+}
+
+.ordered-list li::before {
+content: counter(list-counter) ""; /* Display the list number */
+counter-increment: list-counter; /* Increment the list counter */
+position: absolute; 
+left: -28px;
+
+color: var(--swatch--prim-violet);
+font-weight: 700;
+}
+
+.is-ol, .is-ul  {
+padding-left: 18px;
+}
+
+ul, ol {
+padding-left: 30px;
+}
+
+
+ul.list {
+    list-style: none; /* Remove default list styling */
+    padding-left: 20px; /* Adjust padding to add space for custom dots */
+}
+
+ul.list li {
+    position: relative; /* Positioning context for the pseudo-element */
+}
+
+ul.list li::before {
+    content: "•";
+    color: var(--swatch--prim-violet);
+    font-size: 40px; 
+    position: absolute; 
+    left: -20px; 
+}
