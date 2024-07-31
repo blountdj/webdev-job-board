@@ -239,6 +239,15 @@ document.addEventListener('DOMContentLoaded', function() {
         loadData()
     }
 
+    function updatePlaceholder() {
+        const input = document.querySelector('#search-filter');
+        if (window.innerWidth < 992) {
+            input.placeholder = "Filter by title...";
+        } else {
+            input.placeholder = "Filter by title, company...";
+        }
+    }
+
     function init() {
         loadData(currentLimit);
         checkInitialMode();
@@ -247,6 +256,8 @@ document.addEventListener('DOMContentLoaded', function() {
         jobDetailsFooter.classList.add('hidden');
         viewAllListingsLink.addEventListener('click', closeDetails);
         searchBtn.addEventListener('click', search);
+        updatePlaceholder();
+        window.addEventListener('resize', updatePlaceholder);
     }
 
     init()
