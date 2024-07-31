@@ -4,7 +4,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const loadingSpinner = document.getElementById('loading-spinner');
     const jobsGrid = document.querySelector('.main-grid');
     const loadMoreBtn = document.getElementById('load-more-btn');
-    const htmlElem = document.querySelector('html');
     const mainWrapper = document.querySelector('.main-wrapper');
     const jobDetailsWrapper = document.querySelector('.job-details-wrapper');
     const jobDetailsFooter = document.querySelector('.job-details-footer');
@@ -35,7 +34,6 @@ document.addEventListener('DOMContentLoaded', function() {
     const requirementList = document.getElementById('requirements-list');
     const detailsRole = jobDetailsWrapper.querySelector('#role-list');
     const roleList = document.getElementById('role-list');
-
 
     // Data
     let fetchedData;
@@ -163,7 +161,6 @@ document.addEventListener('DOMContentLoaded', function() {
         );
     }
 
-
     function loadData(noJobs = currentLimit) {
         loadingSpinner.classList.add('block');
         let filteredData;
@@ -213,12 +210,6 @@ document.addEventListener('DOMContentLoaded', function() {
         });
     }
 
-    function checkInitialMode() {
-        if (htmlElem.classList.contains('dark-mode')) {
-            toggleUpdate();
-        }
-    }
-
     loadMoreBtn.addEventListener('click', function() {
         loadData(currentNoJobs + currentLimit);
     })
@@ -250,7 +241,6 @@ document.addEventListener('DOMContentLoaded', function() {
 
     function init() {
         loadData(currentLimit);
-        checkInitialMode();
         loadMoreBtn.classList.remove('hidden');
         jobDetailsWrapper.classList.add('hidden');
         jobDetailsFooter.classList.add('hidden');
@@ -261,9 +251,4 @@ document.addEventListener('DOMContentLoaded', function() {
     }
 
     init()
-
 });
-
-  
-
-
